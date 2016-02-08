@@ -1,0 +1,327 @@
+##$Id: avr.makeinc 1.3.1.1 2014/11/25 14:51:18 ITS tnt $
+##$Log: avr.makeinc $
+##Revision 1.3.1.1  2014/11/25 14:51:18  ITS
+##Version from ITS
+##Revision 1.4  2014/11/17 10:18:00  carsten
+##Added generation of usercode hex files
+##Revision 1.3  2014/07/18 09:51:22  jacob
+##Backup from ITS main
+##Revision 1.2  2014/06/18 08:24:06  jacob
+##Version used for usercode
+##Revision 1.1  2014/06/17 14:21:39  jacob
+##Initial revision
+
+#todo support SPLITPROG
+#todo support image math 
+#todo support CRC table placement  
+
+CYGWINPATH		:=  "c:\cygwin\bin"
+TOOLSPATH		:=  "c:\bin"
+PATH_EXP		:= $(shell cygpath -u $(CYGWINPATH)):
+PATH_EXP		+= $(shell cygpath -u $(TOOLSPATH)):
+PATH_EXP		+= $(PATH)
+export PATH		:= $(subst : ,:,$(PATH_EXP))		# Need to kill spaces or it's not accepted 
+
+ifneq "$(findstring unittest,  $(MAKECMDGOALS))" "unittest"
+
+OBJDIR  ?= ./obj
+
+TARGETARCH 	= AVR
+COMPILERTYPE	= GCC
+MKSPROJECT	?= sandbox.pj
+
+#FIXME set the ASMSOURCE 
+
+#Device selection 
+ifndef DEVICE
+        $(error You must define DEVICE)
+	exit 1;
+endif
+
+ifeq "$(DEVICE)" "ATMEGA128"
+FLASHSIZE	:= 0x20000	
+RAMSIZE		:= 0x1000
+MCU_TARGET     	= atmega128
+
+ifdef BOOTLOADER 
+CODESIZE	?= 	$(FLASHSIZE)
+ENTRY_ADDRESS 	= 	0x1E000
+CODESIZE	:= 	0x2000
+CRCPATCHADRR	:= 	0x1FFC
+else 
+CODESIZE	:= 	0x1E000
+ENTRY_ADDRESS 	= 	0x0
+CRCPATCHADRR	:= 	0x1DFFC
+endif 
+
+# Fuses 
+#default is E1
+FB_LOW		?= E1
+
+# default is x99
+FB_HIGH		?= 98
+# 98 => Max boot sector size and boot into it too
+
+# default is 0xFD
+FB_EXT		?= FD
+
+endif  
+
+ifeq "$(DEVICE)" "xxxx" 
+endif
+
+OBJECTS   = $(addsuffix .o, $(notdir $(basename $(SOURCE))))
+OBJECTS  += $(addsuffix .o, $(notdir $(basename $(LIBSOURCE))))
+OBJECTS  += $(addsuffix .o, $(notdir $(basename $(ASMSOURCE))))
+OBJECTS  += $(addsuffix .o, $(notdir $(basename $(ASMSTARTUP))))
+OBJECTS  += $(addsuffix .o, $(notdir $(basename $(BINSOURCE))))
+
+
+
+F_CPU              = 11059200UL	# Core freq in Hz
+
+OPTIMIZE           ?= -O2
+DEFS               =
+LIBS               = -lm
+
+INCLUDE            = -I .
+
+
+# setup compiler
+ifndef WINAVR_VERSION
+WINAVR_VERSION = 3.4.2.1573
+ATMEL_TOOLCHAIN = 1
+else
+ATMEL_TOOLCHAIN ?= 1
+endif
+
+CC          = c:/winavr-$(WINAVR_VERSION)/bin/avr-gcc
+OBJCOPY     = c:/winavr-$(WINAVR_VERSION)/bin/avr-objcopy
+OBJDUMP     = c:/winavr-$(WINAVR_VERSION)/bin/avr-objdump
+NM	    = c:/winavr-$(WINAVR_VERSION)/bin/avr-nm
+SIZE	    = c:/winavr-$(WINAVR_VERSION)/bin/avr-size
+
+# Physical interface: aWire, debugWIRE, HVPP, HVSP, ISP, JTAG, PDI, TPI or SWD.
+ATPROGRAM_IF= ISP
+ATPROGRAM   = c:/bin/atprogram/atbackend/atprogram
+
+CCFLAGS     = -Wall $(INCLUDE) -mmcu=$(MCU_TARGET) -g $(DEFS) 
+CCFLAGS    += -DAVRGCC
+CCFLAGS    += -DF_CPU=$(F_CPU)
+CCFLAGS    += -DATMEL_TOOLCHAIN=$(ATMEL_TOOLCHAIN)
+CCFLAGS    += -DXTAL_CPU=$(F_CPU)
+CCFLAGS    += -DAVR 
+CCFLAGS    += -DHWVERSION=$(HWVERSION)
+CCFLAGS    += -DPROGRAM_NAME=\"$(PROGRAM_NAME)\"
+CCFLAGS    += -DPROGMEM_CRCTABLE
+CCFLAGS    += -funsigned-char
+CCFLAGS    += -funsigned-bitfields
+CCFLAGS    += -fpack-struct
+CCFLAGS    += -fshort-enums
+CCFLAGS	   += -fno-exceptions
+CCFLAGS    += -fno-threadsafe-statics# if not we need some cxa_guard_aquire stuff 
+CCFLAGS	   += -D__AVR_LIBC_DEPRECATED_ENABLE__
+
+ifdef BOOTLOADER 
+CCFLAGS	   += -DBOOTLOADER
+endif 
+
+CCFLAGS    += -mcall-prologues# Slashes codesize
+
+# eliminate dead code 
+CCFLAGS += 	-ffunction-sections
+CCFLAGS += 	-fdata-sections
+
+LDFLAGS		+= -Wl,--section-start=.text=$(ENTRY_ADDRESS)
+LDFLAGS		+= -Wl,-Ttext=$(ENTRY_ADDRESS)
+
+# eliminate dead code 
+LDFLAGS 	+= -Wl,--gc-sections
+LDFLAGS     += -Wl,-u,vfprintf -lprintf_flt
+
+# ELF FILE
+$(PROGRAM_NAME).elf: $(addprefix $(OBJDIR)/,$(OBJECTS)) makefile  
+	@echo Creating ELF file
+	$(CC) $(CCFLAGS) $(addprefix $(OBJDIR)/,$(OBJECTS)) --output $@ $(LDFLAGS) $(LIBS)
+	@echo 
+
+# C compiling
+$(OBJDIR)/%.o: %.c makefile
+	@echo Compiling $<
+	@$(CC) -c -x c++ $(CCFLAGS) $(OPTIMIZE) $< -o $@ 
+
+$(OBJDIR)/%.o : %.S
+	@Echo Assembling $<			      
+	@$(CC) -c  $(CCFLAGS) $< -o $@
+	@echo 
+
+# C++ compiling
+$(OBJDIR)/%.o: %.cpp makefile 
+	@echo Compiling $<
+	$(CC) -c $(CCFLAGS) $(OPTIMIZE) $< -o $@ 
+
+
+$(OBJDIR)/%.o: $(OBJDIR)/%.cpp	makefile 
+	@echo Compiling $<
+	@$(CC) -c -x c++ $(CCFLAGS) $(OPTIMIZE) $< -o $@
+	@echo 
+
+
+$(OBJDIR)/%.o : %.bin 
+	@Echo Converting bin $< 
+	@bininclude.exe --noconst --src $< --varname $(notdir $(basename $<)) --section progmem --style array > $(OBJDIR)/$(notdir $(basename $<)).cpp
+	$(CC) $(CCFLAGS) -c $(OBJDIR)/$(notdir $(basename $<)).cpp -o $@ 	
+
+
+#$(OBJDIR)/V3Bootloader.o : bootloader/V3Bootloader.bin 
+#	@Echo Converting bin $<
+#	@grep -E "VERSIONA" bootloader/VersionStr.h | sed -e s@".*\"\(.*\)\".*"@"Bootloader version: \\1"@
+#	@bininclude.exe --noconst --src $< --varname $(notdir $(basename $<)) --section progmem --style array > $(OBJDIR)/$(notdir $(basename $<)).cpp
+#	$(CC) $(CCFLAGS) -c $(OBJDIR)/$(notdir $(basename $<)).cpp -o $@ 	
+
+
+all: clean bootl bin
+	
+
+
+clean:
+	rm -rf $(OBJDIR)/*.o
+	rm -rf $(OBJDIR)/*.cpp
+	rm -rf $(OBJDIR)/*.dep
+	rm -rf $(PROGRAM_NAME).elf *.eps *.png *.bak 
+	rm -rf *.lst *.map *.bin *.hex *.objdump *.sym *.dep
+	
+# 	Kill bootloader directory 
+#	-rm -rf ./bootloader/*
+
+#Create a version header
+include version.makeinc
+include dependencies.makeinc
+
+
+hex:  $(PROGRAM_NAME).hex $(PROGRAM_NAME).fullimage.hex
+	
+$(PROGRAM_NAME).hex: $(PROGRAM_NAME).bin info
+	@echo Creating $@ from $< 
+	$(OBJCOPY) -O ihex -I binary --adjust-vma $(ENTRY_ADDRESS) $< $@ 
+
+$(PROGRAM_NAME).fullimage.hex: $(PROGRAM_NAME).fullimage.bin info
+	@echo Creating $@ from $< 
+	$(OBJCOPY) -O ihex -I binary --adjust-vma $(ENTRY_ADDRESS) $< $@ 
+
+
+
+.PHONY bootl:
+bootl:  
+	@Echo Compiling bootloader 
+	make -C ./bootloader clean
+	make -C ./bootloader bin
+
+
+# See if we need to append bootloader image 
+ifndef BOOTLOADERIMAGE
+PROGIMAGE = $(PROGRAM_NAME).bin
+bin:  	$(PROGRAM_NAME).bin info
+else
+PROGIMAGE ?= $(PROGRAM_NAME).fullimage.bin
+bin:  	$(PROGRAM_NAME).fullimage.bin info
+
+endif 
+
+$(PROGRAM_NAME).fullimage.bin: $(PROGRAM_NAME).bin 
+	@echo Creating $@ from $< + $(BOOTLOADERIMAGE)
+	cat $< $(BOOTLOADERIMAGE) > $@
+	
+	
+%.bin: %.elf 
+	@echo Creating $@ from $< 
+	@$(OBJCOPY) -j .text -j .data -O binary $< $@
+	CrcPatcher --size $(CODESIZE) --fill 0xFF --patchaddr $(CRCPATCHADRR) --src $@
+
+
+info:   $(PROGRAM_NAME).elf
+	@echo ---------------- INFO ----------------
+	@echo "Size info"
+	@$(SIZE) $(PROGRAM_NAME).elf
+	@echo 
+	@echo "   text = Machine instructions"
+	@echo "   data = Static data"
+	@echo "   bss  = Uninitialized global or static variables"
+	@echo 
+	@grep -E "VERSIONA" VersionStr.h | sed -e s@".*\"\(.*\)\".*"@"Version: \\1"@
+	@grep -E "VERSIONA" bootloader/VersionStr.h | sed -e s@".*\"\(.*\)\".*"@"Bootloader version: \\1"@
+	@echo 
+
+	@$(NM) -S -C -n  $< > $(PROGRAM_NAME).sym
+	@$(OBJDUMP) -C -t -d -S -x $(PROGRAM_NAME).elf > $(PROGRAM_NAME).objdump
+	@echo --------------------------------------
+
+prg:	$(PROGIMAGE) info
+ifdef SPLITPROG
+	$(PRG) -ME -P $<      0x08000000 -Q
+	$(PRG)     -P crc.bin $(CRCABSPATCHADRR) -Q -Run
+else
+#	$(PRG) -ME -P $< 0x08000000 -Q -Run
+	$(PRG) -SE 0 $(PRGBLOCKCNT) -P $< 0x08000000 -Q -Run
+endif
+
+
+prg:    $(PROGIMAGE) info 
+	$(ATPROGRAM)  -t jtagicemkii -v -f -q -cl 2500khz -i $(ATPROGRAM_IF) -d $(MCU_TARGET) chiperase write  -fs --values $(FB_LOW)$(FB_HIGH)$(FB_EXT) program -fl --format bin -f $< --verify
+
+fuse:   
+	$(ATPROGRAM)  -t jtagicemkii -v -f -q -cl 50khz -i $(ATPROGRAM_IF) -d $(MCU_TARGET) write -fs --values $(FB_LOW)$(FB_HIGH)$(FB_EXT) 
+
+chiperase: 
+
+	$(ATPROGRAM)  -t jtagicemkii -v -f -q -cl 50khz -i $(ATPROGRAM_IF) -d $(MCU_TARGET) chiperase
+
+
+inf:
+	$(ATPROGRAM) -t jtagicemkii -i $(ATPROGRAM_IF) -d $(MCU_TARGET) -cl 1khz info
+
+abe:
+	$(ATPROGRAM) --help
+
+
+
+else 
+
+#replace \ with /
+UNITTEST_SRC_II = $(shell cygpath -u $(subst \,/,$(UNITTEST_SRC)))
+
+UNITTEST = 1
+
+## UNIT TEST SECTION 
+
+PHONY : exe unittest
+
+NOMKS = 1
+SKIPDEPS = 1
+OBJDIR = ./obj
+USEBOOST = 0
+LIBS = 
+DDKROOT =
+USEPRECOMPILEDHEADERS = 0
+RELEASE := 1
+DEFINES += /DUNITTEST
+
+SOURCE 		:= $(notdir $(UNITTEST_SRC_II))
+UNITTEST_MAIN 	:= $(notdir $(UNITTEST_SRC_II))
+
+PROGRAM_NAME 	:= $(basename $(notdir $(UNITTEST_SRC_II)))
+
+#scan file for modules to include for unittesting 
+UNITOBJ := $(shell grep -E 'UNIT\(.+\)' $(UNITTEST_SRC_II) | sed -e 's/[ \t]*\/\/UNIT(\(.*\))/\1/g')
+
+SOURCE += $(UNITOBJ)
+
+include makefile_win32_commandline.makeinc
+
+unittest: $(PROGRAM_NAME).exe 
+	.\\$(PROGRAM_NAME).exe
+endif 
+
+
+
+

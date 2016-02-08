@@ -1,0 +1,314 @@
+#$Id: dependencies.makeinc 1.27 2013/10/28 11:37:33 jacob tnt $
+#$Log: dependencies.makeinc $
+#Revision 1.27  2013/10/28 11:37:33  jacob
+#Upcase of CCFlags
+#Revision 1.26  2013/02/18 17:50:22  jacob
+#cxx hack
+#Revision 1.25  2013/02/17 11:31:53  jacob
+#Added fix for cygpath when calling tools
+#Revision 1.24  2012/08/30 12:32:09  jacob
+#Version that replaces c:\ with the cygwin alternative. 
+#For MAKE 3.81
+#Revision 1.23  2012/06/11 08:55:17  Peter
+#Added afxadv.h and afxconv.h to DEPENDENCYSTRIP
+#Revision 1.22  2012/06/11 08:51:27  Peter
+#Added afxole.h to DEPENDENCYSTRIP
+#Revision 1.21  2012/05/17 10:51:17  Peter
+#Added Gdiplus.h to DEPENDENCYSTRIP
+#Revision 1.20  2012/04/17 10:50:10  jacob
+#Added visa.h to include list
+#Revision 1.19  2012/04/11 13:11:01  jacob
+#Added GDIplus header to exceptions
+#Revision 1.18  2012/03/12 09:49:37  jacob
+#Precompiled header dependency fix
+#Revision 1.17  2012/02/19 15:54:11  jacob
+#Fix when usign precompiled headers
+#Revision 1.16  2012/01/02 15:39:07  jacob
+#More robust parsing of targets when deciding to include dep file or not
+#Revision 1.15  2012/01/02 15:08:51  jacob
+#Attemtp to make dep generation run on multiple cpu's
+#Revision 1.14  2012/01/02 11:52:58  jacob
+#Fix to avoid rebulding deps all the time
+#Revision 1.13  2011/12/29 16:00:52  jacob
+#Added IGNOREDEPS
+#Revision 1.12  2011/12/09 12:27:01  jacob
+#CleanUp
+#Revision 1.11  2011/12/09 10:51:27  jacob
+#Fixes to clean
+#Revision 1.10  2011/12/08 10:33:01  jacob
+#dep files are not intermidiate 
+#Revision 1.9  2011/12/07 20:27:18  jacob
+#Added dep from bin rule
+#Revision 1.8  2011/12/07 20:16:08  jacob
+#Now dependencies are created if they do not exists
+#Revision 1.7  2011/12/07 18:33:09  jacob
+#Fix in other target extensions dep generation
+#Revision 1.6  2011/12/07 16:12:38  Peter
+#Minor fix 
+#Revision 1.5  2011/11/30 13:16:58  jacob
+#Revision 1.4  2011/11/29 11:09:22  jacob
+#Extension fix
+#Revision 1.3  2011/11/29 10:54:40  jacob
+#Attempt to make a unified version
+#Revision 1.2.1.2  2011/11/25 07:19:35  jacob
+#More hacks
+#Revision 1.2.1.1  2011/10/31 11:28:31  jacob
+#Hacked version supporting gcc 
+#Revision 1.2  2011/10/28 11:56:20  jacob
+#Revision 1.1  2011/10/28 08:53:29  jacob
+#Initial revision
+
+.PHONY: dep deptest dependencies_clean
+
+DEPSOURCE	?= $(SOURCE)
+DEPLIST :=  $(addsuffix .dep, $(notdir $(basename $(DEPSOURCE))))
+
+PROGRAM_DEPFILE	?= $(PROGRAM_NAME).dep
+
+
+# Lets figure out some CC flags for GCC
+ifeq "$(COMPILERTYPE)" "MS"
+ OBJEXT	= obj
+ # Grab include info and transform into GCC format  
+ DEP_INCPATH := $(shell echo $(CCFLAGS) | grep -E -o '/I *[^ ]+')
+ DEP_INCPATH := $(subst /I,-I ,$(DEP_INCPATH))
+ DEP_INCPATH := $(subst \,/,$(DEP_INCPATH))
+
+ DEP_DEFINES := $(shell echo $(CCFLAGS) | grep -E -o '/D *[^ ]+')
+ DEP_DEFINES := $(subst /D,-D,$(DEP_DEFINES))
+
+ #GCC_CCFLAGS += -D __AFXWIN_H__
+ DEP_DEFINES += -D NOMINMAX
+
+ifeq "$(TARGETARCH)" "MFC"
+  DEP_DEFINES += -D __AFXWIN_H__
+endif 
+
+
+ DEP_CC	     := Gcc 	     
+
+else 
+ OBJEXT	= o
+ # Cat them together. We have no clear naming convention 
+ DEP_CCFLAGS := $(CCFLAGS) $(CCFLAGS)
+
+ DEP_CC	     := $(CC)
+
+endif 
+
+
+DEP_CCFLAGS	+= -MM -MG -c -D DEPS $(DEP_DEFINES) $(DEP_INCPATH)
+
+ifdef USEPRECOMPILEDHEADERS
+ # Include when parsing for deps too 
+DEP_CCFLAGS += -include $(PRECOMPILEDHEADER)		
+endif
+
+# We like to remove the VersionStr.h file 
+EXTRACLEANTARGET 	+= dependencies_clean
+
+
+DEPEXISTS := $(shell if [ -f $(PROGRAM_DEPFILE) ]; then \
+                           echo "1";\
+                        else \
+                           echo "0";\
+                        fi;)
+
+
+#ifndef GCC_CCFLAGS 
+# $(error You must define GCC_CCFLAGS somehow)
+# exit 1;
+#endif 
+
+# These files are detected by the dependency scanning BUT make does not know of them. 
+# Could add them tp VPATH but I fear that it'll (silently) clash with some of our files. 
+# We remove them by 'hand'
+DEPENDENCYSTRIP := \
+		-e '/hidsdi\.h/Id'		\
+		-e '/hidpi\.h/Id'		\
+		-e '/setupapi\.h/Id'		\
+		-e '/hidusage\.h/Id'		\
+		-e '/usbdi\.h/Id'		\
+		-e '/devioctl\.h/Id'		\
+		-e '/conio\.h/Id'		\
+		-e '/^afx\.h/Id'		\
+		-e '/afxwin\.h/Id'		\
+		-e '/afxext\.h/Id'		\
+		-e '/afxdisp\.h/Id'		\
+		-e '/afxdtctl\.h/Id'		\
+		-e '/afxcmn\.h/Id'		\
+		-e '/afxdao\.h/Id'		\
+		-e '/afxole\.h/Id'		\
+		-e '/afxadv\.h/Id'		\
+		-e '/afxconv\.h/Id'		\
+		-e '/Afxtempl\.h/Id'		\
+		-e '/afxtempl\.h/Id'		\
+		-e '/afxmt\.h/Id'		\
+		-e '/afxsock\.h/Id'		\
+		-e '/afxcontrolbars\.h/Id'	\
+		-e '/afxpriv\.h/Id'		\
+		-e '/crtdbg\.h/Id'		\
+		-e '/tchar\.h/Id'		\
+                -e '/StdString\.h/Id'		\
+                -e '/atlconv\.h/Id'		\
+                -e '/multimon\.h/Id'		\
+		-e '/dbdaoint\.h/Id'		\
+		-e '/strsafe\.h/Id'		\
+		-e '/usbioctl\.h/Id'		\
+		-e '/cfgmgr32\.h/Id'		\
+		-e '/usb100\.h/Id'		\
+		-e '/usbdesc\.h/Id'		\
+		-e '/direct\.h/Id'		\
+		-e '/Gdiplusgraphics\.h/Id'	\
+		-e '/Gdiplus\.h/Id'		\
+		-e '/visa\.h/Id'		\
+		-e '/pdh\.h/Id'	
+
+
+
+# Precompiled headers support 
+ifdef USEPRECOMPILEDHEADERS
+# Include when parsing for deps too 
+DEP_CCFLAGS += -include $(PRECOMPILEDHEADER)		
+endif
+
+
+infotest: 
+	# CC Flags 
+	@echo $(DEP_CCFLAGS)
+
+	# Defines 
+	@echo $(DEP_DEFINES)
+
+	# Include path 
+	@echo $(DEP_INCPATH)
+
+
+$(OBJDIR)/%.dep : %.cpp
+	@echo creating deps for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): \\" > $@
+	@$(DEP_CC) -c $(DEP_CCFLAGS) $(shell cygpath -m $<) | 	\
+	sed -e '{:q;N;s/\n//g;t q}'	  |	\
+	sed -e 's/\\//g' 		  |     \
+	sed -e 's/^[^\:]\+\://g' 	  | 	\
+	sed -e 's/[[:space:]]\+/\n/g'  	  | 	\
+	sed $(DEPENDENCYSTRIP)		  |	\
+	sort -f				  |	\
+	uniq -i				  | 	\
+	sed -e 's/^ \\$$//g' 		  |	\
+	sed -e '/^$$/d' 		  | 	\
+	sed -e 's/$$/ \\/g' 		  |     \
+	sed -e 's/^C\:/\/cygdrive\/c/g'	>> $@	
+	@echo >> $@
+
+## FIXME this rule is exactly the same as the cpp rule. The c rule might be the same too. Find a way to merge them
+$(OBJDIR)/%.dep : %.cxx
+	@echo creating deps for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): \\" > $@
+	@$(DEP_CC) -c $(DEP_CCFLAGS) $(shell cygpath -m $<) | 	\
+	sed -e '{:q;N;s/\n//g;t q}'	  |	\
+	sed -e 's/\\//g' 		  |     \
+	sed -e 's/^[^\:]\+\://g' 	  | 	\
+	sed -e 's/[[:space:]]\+/\n/g'  	  | 	\
+	sed $(DEPENDENCYSTRIP)		  |	\
+	sort -f				  |	\
+	uniq -i				  | 	\
+	sed -e 's/^ \\$$//g' 		  |	\
+	sed -e '/^$$/d' 		  | 	\
+	sed -e 's/$$/ \\/g' 		  |     \
+	sed -e 's/^C\:/\/cygdrive\/c/g'	>> $@	
+	@echo >> $@
+
+$(OBJDIR)/%.dep : %.c 
+	@echo creating deps for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): \\" > $@
+	@$(DEP_CC) $(DEP_CCFLAGS) $(shell cygpath -m $<) | 	\
+	sed -e '{:q;N;s/\n//g;t q}'	  |	\
+	sed -e 's/\\//g' 		  |     \
+	sed -e 's/^[^\:]\+\://g' 	  | 	\
+	sed -e 's/[[:space:]]\+/\n/g'  	  | 	\
+	sed $(DEPENDENCYSTRIP)		  |	\
+	sort -f				  |	\
+	uniq -i				  | 	\
+	sed -e 's/^ \\$$//g' 		  |	\
+	sed -e '/^$$/d' 		  | 	\
+	sed -e 's/$$/ \\/g' >> $@	
+	@echo >> $@
+
+$(OBJDIR)/%.dep : %.S 
+	@echo creating deps I for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): " $(shell cygpath -w $<) > $@
+	@echo >> $@
+
+$(OBJDIR)/%.dep : %.bmp 
+	@echo creating deps II for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): " $(shell cygpath -w $<) > $@
+	@echo >> $@
+
+$(OBJDIR)/%.dep : %.key 
+	@echo creating deps III for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): " $(shell cygpath -w $<) > $@
+	@echo >> $@
+
+$(OBJDIR)/%.dep : %.fnt 
+	@echo creating deps IV for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): " $(shell cygpath -w $<) > $@
+	@echo >> $@
+
+$(OBJDIR)/%.dep : %.bin 
+	@echo creating deps V for $<
+	@echo '$$''(OBJDIR)'"/$(notdir $(basename $@)).$(OBJEXT): " $(shell cygpath -w $<) > $@
+	@echo >> $@
+
+
+# .INTERMEDIATE: $(addprefix $(OBJDIR)/,$(DEPLIST)) 
+
+dep : $(addprefix $(OBJDIR)/,$(DEPLIST)) 
+
+	@Echo assembling dependencies 
+
+#	Cat all the files into one 
+	@cat $(addprefix $(OBJDIR)/,$(DEPLIST)) > $(PROGRAM_DEPFILE)
+
+ifdef USEPRECOMPILEDHEADERS
+# 	**** Create a dependency for the precompiled header file 
+# 	Simply done by copying the one just built and then rename to pch
+	cat $(OBJDIR)/$(notdir $(basename $(PRECOMPILEDHEADERSOURCEFILE))).dep | sed -e 's#$$(OBJDIR)/$(notdir $(basename $(PRECOMPILEDHEADERSOURCEFILE)))\.obj#$(PROGRAM_NAME)\.pch#gi' >> $(PROGRAM_DEPFILE)
+endif 
+
+
+# if no dep file exists include a rule on how to make one 
+# If rule is included all the time then the dep file is rebuilt on each source code change 
+
+ifneq "$(DEPEXISTS)" "1"
+$(PROGRAM_DEPFILE) : 
+	make -j8 dep
+	@Echo Deps done 
+endif 
+
+
+
+
+dependencies_clean:
+	@Echo Removing dep files
+	@rm -rf $(PROGRAM_DEPFILE)
+	@rm -rf $(addprefix $(OBJDIR)/,$(DEPLIST)) 
+	
+	
+# dependencies 
+ifneq "$(findstring clean,$(MAKECMDGOALS))" "clean"
+ifneq "$(findstring dep,  $(MAKECMDGOALS))" "dep"
+ifndef IGNOREDEPS 
+ include $(PROGRAM_DEPFILE)
+endif
+endif
+endif
+
+
+
+
+
+
+
+
+
