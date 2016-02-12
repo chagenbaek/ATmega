@@ -1,0 +1,105 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+	Version="10.0"
+	VendorName="SlickEdit"
+	WorkingDir=".">
+	<Config
+		Name="Release"
+		OutputFile=""
+		CompilerConfigName="Avr">
+		<Menu>
+			<Target
+				Name="Compile"
+				MenuCaption="&amp;Compile"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveAll"
+				RunFromDir="%rw"
+				ClearProcessBuffer="1">
+				<Exec CmdLine="make bin"/>
+			</Target>
+			<Target
+				Name="Execute"
+				MenuCaption="E&amp;xecute"
+				SaveOption="SaveAll"
+				RunFromDir="%rw"
+				CaptureOutputWith="ProcessBuffer"
+				ClearProcessBuffer="1">
+				<Exec CmdLine="make prg"/>
+			</Target>
+			<Target
+				Name="clean"
+				MenuCaption="&amp;clean"
+				RunFromDir="%rw"
+				CaptureOutputWith="ProcessBuffer"
+				ClearProcessBuffer="1">
+				<Exec CmdLine="make clean"/>
+			</Target>
+			<Target
+				Name="deps"
+				MenuCaption="&amp;deps"
+				SaveOption="SaveAll">
+				<Exec CmdLine="make dep"/>
+			</Target>
+			<Target
+				Name="Fixme"
+				MenuCaption="&amp;Fixme"
+				RunFromDir="%rw"
+				CaptureOutputWith="ProcessBuffer"
+				SaveOption="SaveAll"
+				ClearProcessBuffer="1">
+				<Exec CmdLine="make fixme"/>
+			</Target>
+		</Menu>
+		<Includes>
+		</Includes>
+	</Config>
+	<Files>
+		<Folder
+			Name="Source Files"
+			Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+			<F N="avrutils.cpp"/>
+			<F N="BootloaderUtils.cpp"/>
+			<F N="crc32.cpp"/>
+			<F N="Main.cpp"/>
+			<F N="rtc.cpp"/>
+		</Folder>
+		<Folder
+			Name="Header Files"
+			Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+			<F N="avriodefs.h"/>
+			<F N="avrutils.h"/>
+			<F N="BootloaderUtils.h"/>
+			<F N="CommonSupport.h"/>
+			<F N="containers.h"/>
+			<F N="crc32.h"/>
+			<F N="/WinAVR-3.4.2.1573/avr/include/avr/iom128.h"/>
+			<F N="log.h"/>
+			<F N="random.h"/>
+			<F N="rtc.h"/>
+			<F N="RuntimeFilter.h"/>
+			<F N="SystemTimer.h"/>
+			<F N="target.h"/>
+		</Folder>
+		<Folder
+			Name="Resource Files"
+			Filters="*.ico;*.cur;*.dlg"/>
+		<Folder
+			Name="Bitmaps"
+			Filters="*.bmp"/>
+		<Folder
+			Name="Other Files"
+			Filters="">
+			<F
+				N="avr.makeinc"
+				Type="Makefile"/>
+			<F
+				N="dependencies.makeinc"
+				Type="Makefile"/>
+			<F N="Makefile"/>
+			<F
+				N="version.makeinc"
+				Type="Makefile"/>
+			<F N="VSconfig.h"/>
+		</Folder>
+	</Files>
+</Project>

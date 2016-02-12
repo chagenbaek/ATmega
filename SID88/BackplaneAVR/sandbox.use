@@ -1,0 +1,13 @@
+$(projectdir)/avr.makeinc 7fffffff 21df 5474a576 1.3.1.1
+$(projectdir)/avriodefs.h cdfce5b7 88c9 5474a5bb 1.38
+$(projectdir)/avrutils.cpp 7fffffff 330a 54748775 1.43
+$(projectdir)/avrutils.h 4533c2fb 373b 54748775 1.45
+$(projectdir)/containers.h 43ff73ba 3821 54748775 1.56
+$(projectdir)/Main.cpp 5a4b407f 8b36 5474a55b 1.5
+$(projectdir)/Makefile 7fffffff 3ab 5474a553 1.5
+$(projectdir)/StreamBase.h 7fffffff 5ff 54748775 1.5
+$(projectdir)/SystemTimer.h 2521432b 5396 5474a5b8 1.38.3.1
+$(projectdir)/target.h 59515324 9ac 5474a915 1.2
+$(projectdir)/uart.h 40cf1400 9da3 5474a5db 2.45.2.1
+$(projectdir)/version.makeinc ed772f76 2bd8 5474a5bc 1.41
+$(projectdir)/VSconfig.h 58976679 7a 54748775 1.2

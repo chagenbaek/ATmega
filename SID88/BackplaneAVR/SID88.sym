@@ -1,0 +1,226 @@
+00000000 W __heap_end
+00000000 a __tmp_reg__
+00000000 a __tmp_reg__
+00000000 a __tmp_reg__
+00000000 a __tmp_reg__
+00000000 a __tmp_reg__
+00000000 a __tmp_reg__
+00000000 W __vector_default
+00000000 T __vectors
+00000001 a __zero_reg__
+00000001 a __zero_reg__
+00000001 a __zero_reg__
+00000001 a __zero_reg__
+00000001 a __zero_reg__
+00000001 a __zero_reg__
+0000003b a __RAMPZ__
+0000003b a __RAMPZ__
+0000003b a __RAMPZ__
+0000003b a __RAMPZ__
+0000003b a __RAMPZ__
+0000003b a __RAMPZ__
+0000003d a __SP_L__
+0000003d a __SP_L__
+0000003d a __SP_L__
+0000003d a __SP_L__
+0000003d a __SP_L__
+0000003d a __SP_L__
+0000003e a __SP_H__
+0000003e a __SP_H__
+0000003e a __SP_H__
+0000003e a __SP_H__
+0000003e a __SP_H__
+0000003e a __SP_H__
+0000003f a __SREG__
+0000003f a __SREG__
+0000003f a __SREG__
+0000003f a __SREG__
+0000003f a __SREG__
+0000003f a __SREG__
+00000176 00000004 t __c.2006
+0000017a 00000004 t __c.2004
+00000278 T __ctors_start
+00000278 T __trampolines_end
+00000278 T __trampolines_start
+0000027a T __ctors_end
+0000027a T __dtors_end
+0000027a T __dtors_start
+0000027a W __init
+00000286 0000001a T __do_copy_data
+000002a0 00000010 T __do_clear_bss
+000002a8 t .do_clear_bss_loop
+000002aa t .do_clear_bss_start
+000002b0 00000018 T BootSourceInit
+000002c8 00000020 T __do_global_ctors
+000002f0 T __bad_interrupt
+000002f0 W __vector_1
+000002f0 W __vector_10
+000002f0 W __vector_11
+000002f0 W __vector_13
+000002f0 W __vector_14
+000002f0 W __vector_17
+000002f0 W __vector_18
+000002f0 W __vector_19
+000002f0 W __vector_2
+000002f0 W __vector_20
+000002f0 W __vector_21
+000002f0 W __vector_22
+000002f0 W __vector_23
+000002f0 W __vector_24
+000002f0 W __vector_25
+000002f0 W __vector_26
+000002f0 W __vector_27
+000002f0 W __vector_28
+000002f0 W __vector_29
+000002f0 W __vector_3
+000002f0 W __vector_33
+000002f0 W __vector_34
+000002f0 W __vector_4
+000002f0 W __vector_5
+000002f0 W __vector_6
+000002f0 W __vector_7
+000002f0 W __vector_9
+000002f4 000000c2 T __vector_30
+000002f4 000000c2 W Uart<1, 115200ul, 128, 256, 0ul>::__vector_RxComplete()
+000003b6 00000056 T __vector_12
+000003b6 00000056 W SystemTimerAvr<SystemTimerSetup, unsigned long, false>::__vector_TimerIsr()
+0000040c 000000a8 T __vector_31
+0000040c 000000a8 W Uart<1, 115200ul, 128, 256, 0ul>::__vector_DataRegisterEmpty()
+000004b4 00000048 T __vector_32
+000004b4 00000048 W Uart<1, 115200ul, 128, 256, 0ul>::__vector_TxComplete()
+000004fc 000000cc T init()
+000005c8 00000182 T __vector_16
+0000074a 0000001e T __vector_15
+00000768 00000014 T __vector_8
+0000077c 00000132 T HandleFlash()
+000008ae 000000b0 T ProtoReply(char const*, ...)
+0000095e 0000004e T GetInteger(char*, int)
+000009ac 0000024e T ShowHelp()
+00000bfa 000000ac T SetDisplaySpeed(unsigned int)
+00000ca6 0000064a T CommandHandler()
+000010ff W __stack
+000012f0 000002f6 T getLux(unsigned char)
+000015e6 00000234 T LumHandler(bool)
+0000181a 00000054 W Uart<1, 115200ul, 128, 256, 0ul>::Uart()
+0000181a 00000054 W Uart<1, 115200ul, 128, 256, 0ul>::Uart()
+0000186e 00000054 W Uart<1, 115200ul, 128, 256, 0ul>::Init()
+000018c2 00000484 T main
+00001d46 0000003e t _GLOBAL__sub_I_DebugUart
+00001d84 0000001c T delay(unsigned int)
+00001da0 0000001c T delay_ms(unsigned int)
+00001dbc 00000016 T Reboot()
+00001dd2 00000756 T vfprintf
+00002528 0000000a T __subsf3
+0000252a T __addsf3
+0000254c 000000c0 T __addsf3x
+000025f2 00000008 T __cmpsf2
+000025f2 T __eqsf2
+000025f2 T __lesf2
+000025f2 T __ltsf2
+000025f2 T __nesf2
+000025fa 00000004 T __divsf3
+00002614 000000cc T __divsf3x
+00002618 T __divsf3_pse
+000026ca 00000058 T __fixunssfsi
+00002722 0000007a T __floatunsisf
+00002726 T __floatsisf
+0000279c 00000048 T __fp_cmp
+000027e4 0000000c T __fp_inf
+000027f0 00000006 T __fp_nan
+000027f6 0000000e T __fp_pscA
+00002804 0000000e T __fp_pscB
+00002812 00000022 T __fp_round
+00002834 00000044 T __fp_split3
+00002844 T __fp_splitA
+00002878 0000000e T __fp_zero
+0000287a T __fp_szero
+00002886 00000008 T __gesf2
+00002886 T __gtsf2
+0000288e 00000004 T __mulsf3
+000028a6 000000c2 T __mulsf3x
+000028aa T __mulsf3_pse
+00002954 00000098 T pow
+000029f6 00000062 T exp
+00002a4e 0000004a T __fp_powser
+00002a98 0000000e T inverse
+00002aaa 0000006c T ldexp
+00002b1c 0000008a T log
+00002b9c 00000066 T modf
+00002b9c T modff
+00002c02 0000001c T __fp_mpack
+00002c06 T __fp_mpack_finite
+00002c1e 00000044 T __udivmodsi4
+00002c2a t __udivmodsi4_loop
+00002c44 t __udivmodsi4_ep
+00002c62 00000004 T __tablejump2__
+00002c66 00000008 T __tablejump__
+00002c6e 00000018 T __umulhisi3
+00002c86 00000038 T __prologue_saves__
+00002cbe 00000036 T __epilogue_restores__
+00002cf4 00000008 T __tablejump_elpm__
+00002cfc 0000003c T atoi
+00002d38 000001b0 T __ftoa_engine
+00002ee8 00000016 T strnlen_P
+00002efe 00000012 T strcmp
+00002f10 00000016 T strnlen
+00002f26 T __mulhi_const_10
+00002f36 00000058 T fputc
+00002f8e 0000007a T snprintf
+00003008 00000072 T vsnprintf
+0000307a 000000bc T __ultoa_invert
+00003136 T _exit
+00003136 W exit
+00003138 t __stop_program
+0000313a A __data_load_start
+0000313a T _etext
+00003792 A __data_load_end
+00800100 D __data_start
+00800100 00000001 D bAutoPWM
+00800101 00000002 D iShowFlash
+00800103 00000002 D iShowTimeOut
+00800105 00000002 D Column
+00800107 00000002 D PWMfactormax
+00800109 00000002 D PWMfactormin
+0080010b 00000002 D PWMmanfactor
+0080010d 00000001 d __vector_16::iSegmentToogle
+0080074c 0000000b d SegCode
+00800758 B __bss_start
+00800758 D __data_end
+00800758 D _edata
+00800758 00000004 V SystemTimerAvr<SystemTimerSetup, unsigned long, false>::m_TimerVal
+0080075c 00000001 V Uart<1, 115200ul, 128, 256, 0ul>::m_Busy
+0080075d 00000001 V Uart<1, 115200ul, 128, 256, 0ul>::RxError
+0080075e 00000001 B gIntensity
+0080075f 00000002 B CurrentSpeed
+00800761 00000004 B LuxTimer
+00800765 00000004 B ShowSpeedTimer
+00800769 00000001 B bFlashState
+0080076a 00000010 B iAD_Segment
+0080077a 00000002 B iAD_Batteri_Current
+0080077c 00000002 B iAD_BG_Flash_Current
+0080077e 00000002 B iAD_Flash_Current
+00800780 00000002 B iAD_BG_Segment_Current
+00800782 00000065 B txtInfo
+008007e7 00000001 B fregistercount
+008007e8 00000016 B fregister1
+008007fe 00000016 B fregister0
+00800814 00000002 B LUX_VALUE
+00800816 00000001 B PWMdutymax
+00800817 00000001 B PWMdutymin
+00800818 00000001 B DebugUart
+00800819 00000001 b __vector_16::LastADCMUX
+0080081a 00000001 b __vector_16::ADCState
+0080081b 00000001 b __vector_16::SegmentCount
+0080081c 00000008 b guard variable for HandleFlash()::Timer
+00800824 00000004 b HandleFlash()::Timer
+00800828 00000001 b HandleFlash()::state
+00800829 00000001 b HB_Led_Toggle()::Toggle
+0080082a 00000082 V Uart<1, 115200ul, 128, 256, 0ul>::RxQueue
+008008ac 00000104 V Uart<1, 115200ul, 128, 256, 0ul>::TxQueue
+008009b0 00000065 b ProtoReply(char const*, ...)::str
+00800a15 00000002 b CommandHandler()::BufIndex
+00800a17 000000fa b CommandHandler()::rxpacketbuf
+00800b11 00000001 B ResetSource
+00800b12 B __bss_end
+00800b12 N _end
+00810000 N __eeprom_end

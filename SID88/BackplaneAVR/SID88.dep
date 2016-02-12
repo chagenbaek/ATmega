@@ -1,0 +1,23 @@
+$(OBJDIR)/Main.o: \
+avriodefs.h \
+avrutils.h \
+CommonSupport.h \
+containers.h \
+Main.cpp \
+StreamBase.h \
+SystemTimer.h \
+target.h \
+uart.h \
+VersionStr.h \
+
+$(OBJDIR)/avrutils.o: \
+avriodefs.h \
+avrutils.cpp \
+avrutils.h \
+CommonSupport.h \
+containers.h \
+StreamBase.h \
+SystemTimer.h \
+target.h \
+uart.h \
+
